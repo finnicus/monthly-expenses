@@ -1,17 +1,12 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import App from '../js/App';
-import { fetchAppConfigFromURL, fetchData, fetchRosterData, fetchSettingsData, getAppConfigFromURL } from '../js/Api';
+import { fetchAppConfigFromURL, getAppConfigFromURL } from '../js/Api';
 
 jest.mock('../js/Summary', () => () => null);
-jest.mock('../js/Roster', () => () => null);
-jest.mock('../js/Suggestion', () => () => null);
 
 jest.mock('../js/Api', () => ({
   ...jest.requireActual('../js/Api'),
-  fetchData: jest.fn(),
-  fetchRosterData: jest.fn(),
-  fetchSettingsData: jest.fn(),
   fetchAppConfigFromURL: jest.fn(),
   getAppConfigFromURL: jest.fn(),
 }));
@@ -29,15 +24,12 @@ test('renders loading state', () => {
     useDummyData: true,
     refreshInterval: 300000,
   });
-  fetchData.mockImplementation(() => new Promise(() => {}));
-  fetchRosterData.mockImplementation(() => new Promise(() => {}));
-  fetchSettingsData.mockImplementation(() => new Promise(() => {}));
   fetchAppConfigFromURL.mockImplementation(() => new Promise(() => {}));
   render(<App />);
   expect(screen.getByText(/loading data/i)).toBeInTheDocument();
 });
 
-test('uses tessensohn logo when league is tessensohn', async () => {
+test('uses expenses logo asset', async () => {
   const tessensohnConfig = {
     league: 'tessensohn',
     view: 'default',
@@ -53,5 +45,5 @@ test('uses tessensohn logo when league is tessensohn', async () => {
   render(<App />);
 
   const logoImage = await screen.findByAltText('Tessensohn League logo');
-  expect(logoImage).toHaveAttribute('src', expect.stringContaining('tessensohn.png'));
+  expect(logoImage).toHaveAttribute('src', expect.stringContaining('expenses.png'));
 });

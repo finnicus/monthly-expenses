@@ -1,6 +1,7 @@
-# Getting Started with Create React App
+# Monthly Expenses
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A lightweight React app that loads expenses from a published Google Sheet CSV and shows the current month view.
+Summary data is filtered to include rows where Month/Year matches the current MMM/YYYY or Recurring.
 
 ## Available Scripts
 
@@ -74,16 +75,17 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 ## Data Source Notes
 
-- `Average` and `Hdcp` are sourced directly from the sheet data and are no longer computed in the app.
-- Ensure the source sheet includes `Average` and `Hdcp` columns (case-insensitive keys are supported).
+- The app reads from the published Google Sheet CSV configured in [src/js/Api.js](src/js/Api.js).
+- Data is treated as expenses rows (generic CSV rows), not bowler/roster/settings records.
+- In [src/js/Summary.js](src/js/Summary.js), rows are filtered by `Month/Year` to include only:
+	- the current month in `MMM/YYYY` format (example: `Feb/2026`), or
+	- `Recurring`.
 
 ## URL Parameters
 
-- You can now pass query params to control runtime configuration.
-- Example: `?league=tampines&view=default`
-- `league` selects the configured league data source.
-- If `league` is missing or unknown, it defaults to `dummy` and uses dummy values for all displayed data.
-- `view` is parsed and preserved for view-specific logic (defaults to `default`).
+- You can pass query params to control the view.
+- Example: `?view=summary`
+- `view` is parsed and preserved for view-specific logic (defaults to `summary`).
 
 ### `npm run build` fails to minify
 

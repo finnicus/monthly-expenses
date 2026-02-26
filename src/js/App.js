@@ -1,22 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import TimeAgo from 'react-timeago';
 import { fetchAppConfigFromURL, getAppConfigFromURL } from './Api';
 import Summary from './Summary';
-import Roster from './Roster';
-import Suggestion from './Suggestion';
-import genericLogo from '../logo/generic.png';
+import expensesLogo from '../logo/expenses.png';
 import '../css/App.css';
-
-const getLogoSrc = (logoName) => {
-  const normalizedLogo = String(logoName || '').trim().toLowerCase();
-  if (!normalizedLogo) return genericLogo;
-
-  try {
-    return require(`../logo/${normalizedLogo}.png`);
-  } catch {
-    return genericLogo;
-  }
-};
 
 const setDocumentIcon = (href, rel) => {
   let iconTag = document.querySelector(`link[rel="${rel}"]`);
@@ -31,9 +17,7 @@ const setDocumentIcon = (href, rel) => {
 function App() {
   const initialConfig = useMemo(() => getAppConfigFromURL(window.location.search), []);
   const [appConfig, setAppConfig] = useState(initialConfig);
-  const logoSrc = useMemo(() => getLogoSrc(appConfig.logo || appConfig.league), [appConfig.logo, appConfig.league]);
   const [loading, setLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -58,8 +42,8 @@ function App() {
 
   useEffect(() => {
     document.title = appConfig.title;
-    setDocumentIcon(genericLogo, 'icon');
-    setDocumentIcon(genericLogo, 'apple-touch-icon');
+    setDocumentIcon(expensesLogo, 'icon');
+    setDocumentIcon(expensesLogo, 'apple-touch-icon');
   }, [appConfig.title]);
 
   return (
@@ -67,11 +51,10 @@ function App() {
       <header className="hero">
         <div className="hero-content">
           <div className="logo-section">
-            <img src={logoSrc} alt={`${appConfig.title} logo`} className="site-logo" />
-            <h1>{appConfig.title}</h1>
-          </div>
-          <div className="live-badge">
-            Last Updated: {lastUpdated ? <TimeAgo date={lastUpdated} /> : 'Loading...'}
+            <img src={expensesLogo} alt={`${appConfig.title} logo`} className="site-logo" />
+            <div className="title-section">
+              <h1>{appConfig.title}</h1>
+            </div>
           </div>
         </div>
       </header>
@@ -81,10 +64,7 @@ function App() {
         <Summary
           appConfig={appConfig}
           onLoadingChange={setLoading}
-          onLastUpdatedChange={setLastUpdated}
         />
-        <Roster appConfig={appConfig} />
-        <Suggestion appConfig={appConfig} />
       </main>
     </div>
   );

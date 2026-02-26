@@ -8,94 +8,54 @@ describe('fetchData', () => {
     jest.clearAllMocks();
   });
 
-  test('returns dummy data when useDummyData is true', async () => {
-    const dummyData = [{ bowler: '🟢\u00A0\u00A0Alice', average: 200 }];
-
-    const result = await fetchData({
-      useDummyData: true,
-      dummyData,
-      bowlersSheetUrl: 'https://example.com/sheet.csv',
-      league: 'pinfinity',
-    });
-
-    expect(result.source).toBe('dummy');
-    expect(result.data).toEqual(dummyData);
-    expect(result.updatedAt).toBeInstanceOf(Date);
-    expect(axios.get).not.toHaveBeenCalled();
-  });
-
-  test('fetches CSV, filters by league, maps fields, and sorts active bowlers first', async () => {
+  test('fetches CSV from explicit expensesSheetUrl and parses rows', async () => {
     axios.get.mockResolvedValue({
       data: [
-        'League,Bowler,Gender,Active,Total Games,Total Score,Average,Hdcp',
-        'pinfinity,Carol,F,YES,10,2000,200,0',
-        'pinfinity,Bob,M,YES,20,3600,180,10',
-        'tampines,Ignored,M,YES,30,6000,200,0',
-        'pinfinity,Alice,F,NO,8,1400,175,0',
+        'Month/Year,Category,Amount,Note',
+        'Feb/2026,Rent,1200,Home',
+        'Recurring,Netflix,19.99,Subscription',
       ].join('\n'),
     });
 
     const result = await fetchData({
-      useDummyData: false,
-      bowlersSheetUrl: 'https://example.com/sheet.csv',
-      league: 'pinfinity',
+      expensesSheetUrl: 'https://example.com/expenses.csv',
     });
 
-    expect(axios.get).toHaveBeenCalledWith('https://example.com/sheet.csv');
+    expect(axios.get).toHaveBeenCalledWith('https://example.com/expenses.csv');
     expect(result.source).toBe('csv');
     expect(result.updatedAt).toBeInstanceOf(Date);
-    expect(result.data).toHaveLength(3);
+    expect(result.data).toHaveLength(2);
 
     expect(result.data[0]).toMatchObject({
-      bowler: '🟢\u00A0\u00A0Carol',
-      gender: 'F',
-      active: true,
-      hdcp: 0,
-      totalGames: 10,
-      totalScore: 2000,
-      average: 200,
+      'Month/Year': 'Feb/2026',
+      Category: 'Rent',
+      Amount: '1200',
+      Note: 'Home',
     });
 
     expect(result.data[1]).toMatchObject({
-      bowler: '🟢\u00A0\u00A0Bob',
-      active: true,
-      hdcp: 10,
-      totalGames: 20,
-    });
-
-    expect(result.data[2]).toMatchObject({
-      bowler: '🔴\u00A0\u00A0Alice',
-      active: false,
-      average: 175,
+      'Month/Year': 'Recurring',
+      Category: 'Netflix',
+      Amount: '19.99',
     });
   });
 
-  test('sorts active non-zero handicap bowlers by average before games', async () => {
+  test('uses default expenses sheet URL when config URL is not provided', async () => {
     axios.get.mockResolvedValue({
       data: [
-        'League,Bowler,Gender,Active,Total Games,Total Score,Average,Hdcp',
-        'sgcc,GamesLeader,M,YES,20,3200,160,12',
-        'sgcc,AvgLeader,F,YES,8,1480,185,10',
+        'Month/Year,Category,Amount',
+        'Feb/2026,Utilities,80',
       ].join('\n'),
     });
 
-    const result = await fetchData({
-      useDummyData: false,
-      bowlersSheetUrl: 'https://example.com/sheet.csv',
-      league: 'sgcc',
-    });
+    const result = await fetchData({});
 
+    expect(axios.get).toHaveBeenCalledTimes(1);
+    expect(axios.get.mock.calls[0][0]).toContain('output=csv');
     expect(result.data[0]).toMatchObject({
-      bowler: '🟢\u00A0\u00A0AvgLeader',
-      average: 185,
-      totalGames: 8,
-      hdcp: 10,
-    });
-    expect(result.data[1]).toMatchObject({
-      bowler: '🟢\u00A0\u00A0GamesLeader',
-      average: 160,
-      totalGames: 20,
-      hdcp: 12,
+      'Month/Year': 'Feb/2026',
+      Category: 'Utilities',
+      Amount: '80',
     });
   });
 });
