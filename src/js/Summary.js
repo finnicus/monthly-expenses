@@ -46,18 +46,29 @@ const monthYearToIndex = (monthYear) => {
   return (year * 12) + monthIndex;
 };
 
-const normalizeMonthYearLabel = (monthYear) => {
-  const match = String(monthYear || '').trim().match(/^([A-Za-z]{3})\s*\/\s*(\d{4})$/);
-  if (!match) {
-    return '';
+const configMonthToLabel = (value, currentMonthYear) => {
+  const text = String(value || '').trim();
+  if (!text || text.toLowerCase() === 'current') {
+    return currentMonthYear;
   }
 
-  const monthIndex = MONTH_TO_INDEX[match[1].toUpperCase()];
-  if (monthIndex === undefined) {
-    return '';
+  const compactMatch = text.match(/^([A-Za-z]{3})(\d{4})$/);
+  if (compactMatch) {
+    const monthIndex = MONTH_TO_INDEX[compactMatch[1].toUpperCase()];
+    if (monthIndex !== undefined) {
+      return `${MONTHS[monthIndex]}/${compactMatch[2]}`;
+    }
   }
 
-  return `${MONTHS[monthIndex]}/${match[2]}`;
+  const slashMatch = text.match(/^([A-Za-z]{3})\s*\/\s*(\d{4})$/);
+  if (slashMatch) {
+    const monthIndex = MONTH_TO_INDEX[slashMatch[1].toUpperCase()];
+    if (monthIndex !== undefined) {
+      return `${MONTHS[monthIndex]}/${slashMatch[2]}`;
+    }
+  }
+
+  return currentMonthYear;
 };
 
 const indexToMonthYear = (index) => {
@@ -113,8 +124,12 @@ const parseAmount = (value) => {
 
 function Summary({ appConfig, onLoadingChange }) {
   const [data, setData] = useState([]);
-  const [activeMonthYear, setActiveMonthYear] = useState(getCurrentMonthYear());
   const currentMonthYear = getCurrentMonthYear();
+  const requestedMonthYear = useMemo(
+    () => configMonthToLabel(appConfig.month, currentMonthYear),
+    [appConfig.month, currentMonthYear],
+  );
+  const [activeMonthYear, setActiveMonthYear] = useState(requestedMonthYear);
 
   const loadExpensesData = useCallback(async () => {
     try {
@@ -159,6 +174,10 @@ function Summary({ appConfig, onLoadingChange }) {
 
     return options;
   }, [currentMonthYear]);
+
+  useEffect(() => {
+    setActiveMonthYear(requestedMonthYear);
+  }, [requestedMonthYear]);
 
   useEffect(() => {
     if (monthOptions.length === 0) {

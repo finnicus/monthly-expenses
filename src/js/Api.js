@@ -4,12 +4,38 @@ export const REFRESH_INTERVAL = 300000; // 5 minutes in milliseconds
 const MASTER_WORKBOOK = '2PACX-1vQU7WJ6o8t6Hb5AqXYHppMn4hg2QLNK7xie1VAdSnC5QuRWnKcwI4SwZGkrTHswxIpBMpuTdgvmi7-E';
 const EXPENSES_SHEET = '946802432';
 const DEFAULT_VIEW = 'summary';
+const DEFAULT_MONTH = 'current';
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTH_TO_INDEX = MONTHS.reduce((acc, month, index) => ({ ...acc, [month.toUpperCase()]: index }), {});
 
 const buildDataSheetUrl = (gid) => (
   'https://docs.google.com/spreadsheets/d/e/' + MASTER_WORKBOOK + '/pub?gid=' + gid + '&single=true&output=csv'
 );
 
 const EXPENSES_SHEET_URL = buildDataSheetUrl(EXPENSES_SHEET);
+
+const normalizeMonthParam = (value) => {
+  const text = String(value || '').trim();
+  if (!text) {
+    return DEFAULT_MONTH;
+  }
+
+  if (text.toLowerCase() === DEFAULT_MONTH) {
+    return DEFAULT_MONTH;
+  }
+
+  const match = text.match(/^([A-Za-z]{3})\s*\/?\s*(\d{4})$/);
+  if (!match) {
+    return DEFAULT_MONTH;
+  }
+
+  const monthIndex = MONTH_TO_INDEX[match[1].toUpperCase()];
+  if (monthIndex === undefined) {
+    return DEFAULT_MONTH;
+  }
+
+  return `${MONTHS[monthIndex]}${match[2]}`;
+};
 
 const parseCSVLine = (line) => {
   const values = [];
@@ -61,9 +87,11 @@ const parseCSV = (csvText) => {
 export const getAppConfigFromURL = (search = '') => {
   const query = new URLSearchParams(search);
   const viewParam = (query.get('view') || DEFAULT_VIEW).trim().toLowerCase();
+  const monthParam = normalizeMonthParam(query.get('month') || DEFAULT_MONTH);
 
   return {
     view: viewParam || DEFAULT_VIEW,
+    month: monthParam,
     title: 'Monthly Expenses',
     logo: 'generic',
     useDummyData: false,
