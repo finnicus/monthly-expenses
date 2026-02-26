@@ -20,6 +20,17 @@ const MONTH_ICONS = {
   Dec: '🎄',
 };
 
+const CATEGORY_SHADE_PALETTE = [
+  '#f3f8ff',
+  '#f4fbf6',
+  '#fff7f2',
+  '#f7f5ff',
+  '#fffaf0',
+  '#f2fafb',
+  '#fff4f8',
+  '#f6f8f1',
+];
+
 const getCurrentMonthYear = () => {
   const now = new Date();
   const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(now);
@@ -95,6 +106,15 @@ const getMonthYearValue = (row) => (
 const getCategoryValue = (row) => {
   const categoryKey = Object.keys(row || {}).find((key) => key.trim().toLowerCase() === 'category');
   return categoryKey ? String(row[categoryKey] || '').trim() : '';
+};
+
+const getCategoryShadeByIndex = (index) => {
+  if (index < CATEGORY_SHADE_PALETTE.length) {
+    return CATEGORY_SHADE_PALETTE[index];
+  }
+
+  const hue = Math.round((index * 47) % 360);
+  return `hsl(${hue}, 70%, 94%)`;
 };
 
 const getAmountValue = (row) => {
@@ -228,6 +248,22 @@ function Summary({ appConfig, onLoadingChange }) {
     [totalAmount],
   );
 
+  const categoryShadeMap = useMemo(() => {
+    const categoryOrder = [];
+
+    filteredData.forEach((row) => {
+      const normalized = getCategoryValue(row).toLowerCase();
+      if (normalized && !categoryOrder.includes(normalized)) {
+        categoryOrder.push(normalized);
+      }
+    });
+
+    return categoryOrder.reduce((map, category, index) => ({
+      ...map,
+      [category]: getCategoryShadeByIndex(index),
+    }), {});
+  }, [filteredData]);
+
   return (
     <>
       <div className="table-container">
@@ -281,7 +317,10 @@ function Summary({ appConfig, onLoadingChange }) {
                       ) : null}
                       {shouldInsertCategoryLabel ? (
                         <tr className="category-label-row">
-                          <td colSpan={row.getVisibleCells().length}>
+                          <td
+                            colSpan={row.getVisibleCells().length}
+                            style={{ backgroundColor: categoryShadeMap[currentCategory] || '#f8f9fa' }}
+                          >
                             <span className="category-label-text">{`Category: ${currentCategoryLabel}`}</span>
                           </td>
                         </tr>
