@@ -144,7 +144,7 @@ const parseAmount = (value) => {
 
 function Summary({ appConfig, onLoadingChange }) {
   const [data, setData] = useState([]);
-  const currentMonthYear = getCurrentMonthYear();
+  const currentMonthYear = useMemo(() => getCurrentMonthYear(), []);
   const requestedMonthYear = useMemo(
     () => configMonthToLabel(appConfig.month, currentMonthYear),
     [appConfig.month, currentMonthYear],
@@ -249,19 +249,19 @@ function Summary({ appConfig, onLoadingChange }) {
   );
 
   const categoryShadeMap = useMemo(() => {
-    const categoryOrder = [];
+    const categorySet = new Set();
 
     filteredData.forEach((row) => {
       const normalized = getCategoryValue(row).toLowerCase();
-      if (normalized && !categoryOrder.includes(normalized)) {
-        categoryOrder.push(normalized);
+      if (normalized) {
+        categorySet.add(normalized);
       }
     });
 
-    return categoryOrder.reduce((map, category, index) => ({
-      ...map,
-      [category]: getCategoryShadeByIndex(index),
-    }), {});
+    return Array.from(categorySet).reduce((map, category, index) => {
+      map[category] = getCategoryShadeByIndex(index);
+      return map;
+    }, {});
   }, [filteredData]);
 
   return (
