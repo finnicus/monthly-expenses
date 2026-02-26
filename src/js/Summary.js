@@ -217,6 +217,28 @@ function Summary({ appConfig, onLoadingChange }) {
     });
   }, [activeMonthYear, data]);
 
+  const groupedData = useMemo(
+    () => filteredData
+      .map((row, index) => ({ row, index, category: getCategoryValue(row).toLowerCase() }))
+      .sort((left, right) => {
+        if (left.category === right.category) {
+          return left.index - right.index;
+        }
+
+        if (!left.category) {
+          return 1;
+        }
+
+        if (!right.category) {
+          return -1;
+        }
+
+        return left.category.localeCompare(right.category);
+      })
+      .map((entry) => entry.row),
+    [filteredData],
+  );
+
   const columns = useMemo(() => {
     const keys = Array.from(filteredData.reduce((acc, row) => {
       Object.keys(row || {}).forEach((key) => acc.add(key));
@@ -232,7 +254,7 @@ function Summary({ appConfig, onLoadingChange }) {
   }, [filteredData]);
 
   const table = useReactTable({
-    data: filteredData,
+    data: groupedData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
