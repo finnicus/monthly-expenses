@@ -1,17 +1,14 @@
 {
   "files": {
-    "main.css": "/bowling-league-roster/static/css/main.2b89cb91.css",
-    "main.js": "/bowling-league-roster/static/js/main.e41b8130.js",
-    "static/media/tampines.png": "/bowling-league-roster/static/media/tampines.fc8f640e7f483f57d954.png",
-    "static/media/tessensohn.png": "/bowling-league-roster/static/media/tessensohn.fc8f640e7f483f57d954.png",
-    "static/media/generic.png": "/bowling-league-roster/static/media/generic.6890d31be4e601669081.png",
-    "static/media/sgcc.png": "/bowling-league-roster/static/media/sgcc.990ff9110172544dd2b4.png",
-    "index.html": "/bowling-league-roster/index.html",
-    "main.2b89cb91.css.map": "/bowling-league-roster/static/css/main.2b89cb91.css.map",
-    "main.e41b8130.js.map": "/bowling-league-roster/static/js/main.e41b8130.js.map"
+    "main.css": "/monthly-expenses/static/css/main.d0401586.css",
+    "main.js": "/monthly-expenses/static/js/main.69d6515a.js",
+    "static/media/expenses.png": "/monthly-expenses/static/media/expenses.5576ec3104adefc838b2.png",
+    "index.html": "/monthly-expenses/index.html",
+    "main.d0401586.css.map": "/monthly-expenses/static/css/main.d0401586.css.map",
+    "main.69d6515a.js.map": "/monthly-expenses/static/js/main.69d6515a.js.map"
   },
   "entrypoints": [
-    "static/css/main.2b89cb91.css",
-    "static/js/main.e41b8130.js"
+    "static/css/main.d0401586.css",
+    "static/js/main.69d6515a.js"
   ]
 }
