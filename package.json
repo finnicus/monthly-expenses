@@ -1,6 +1,6 @@
 {
   "name": "monthly-expenses",
-  "version": "2026.0226.15",
+  "version": "2026.0226.16",
   "private": true,
   "homepage": "https://finnicus.github.io/monthly-expenses",
   "dependencies": {
